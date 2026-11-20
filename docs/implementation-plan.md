@@ -65,6 +65,10 @@ The current prototype intentionally withholds bank details because none are veri
 5. Connect variant inventory and transactional order allocation.
 6. Configure verified bank details, approved delivery/returns terms and transactional notifications.
 
+## Transactional email
+
+The Resend integration is isolated in `api/_lib/order-email.ts`, with the Vercel entry point at `api/order-notifications.ts`. It currently supports order-created customer and administrator notifications only. Future status emails must be triggered by real, persisted status transitions from the production backend. Configuration and the current persistence boundary are documented in `docs/email-integration.md`.
+
 ## Current limitations
 
 - Orders, cart and statuses exist only in the current browser.

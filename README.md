@@ -11,6 +11,14 @@ npm run dev
 
 Production build check: `npm run build`.
 
+Quality checks:
+
+```bash
+npm run check
+npm test
+npm run lint
+```
+
 ## Included journey
 
 - Searchable and filterable sample catalogue.
@@ -20,6 +28,7 @@ Production build check: `npm run build`.
 - Payment submission that remains under manual review.
 - Order tracking by order number and checkout email.
 - Demo administrator review, approval and rejection workflow.
+- Server-side Resend order-confirmation and administrator-notification service for Vercel deployments.
 
 ## Prototype boundaries
 
@@ -28,6 +37,8 @@ This repository does not accept real payments. No bank details are displayed bec
 The admin demo passcode is `FORGED-DEMO`. It is a visual prototype gate, not authentication.
 
 Before production, connect Supabase (or an equivalent backend) for server-side prices and totals, order persistence, guest-order verification, optional customer accounts, authenticated role-based administration, row-level security, protected bank configuration, audit logs, newsletter storage and optional secure receipt uploads. Legal, delivery and return policies require business approval.
+
+The current email hook runs only after the browser order record is written successfully. It uses server-side Resend credentials and deterministic idempotency keys, but browser `localStorage` is not durable production persistence. See [`docs/email-integration.md`](docs/email-integration.md) for configuration and deployment requirements.
 
 Guest checkout must remain available without registration. Optional accounts will provide profiles, saved Nigerian delivery addresses and order history. See [`docs/implementation-plan.md`](docs/implementation-plan.md) for the proposed account, order and bank-transfer architecture.
 
