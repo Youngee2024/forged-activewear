@@ -3,12 +3,16 @@ import { ArrowRight, Check, ChevronDown, ChevronRight, Copy, Heart, Maximize2, M
 import { formatNaira, getProductVariant, isProductAvailable, products, sizeGuideConfig, storeConfig, type Category, type Product, type SizeGuideGroup } from './data';
 import type { CartItem, Order, OrderStatus, PaymentStatus } from './types';
 import {persistOrderAndNotify} from './order-email';
+import {nextPreviewOrderReference} from './preview-order-reference';
 
 const read = <T,>(key:string, fallback:T):T => { try { return JSON.parse(localStorage.getItem(key) || '') as T; } catch { return fallback; } };
 const path = () => `${window.location.pathname}${window.location.search}`;
 const navigate = (to:string) => { history.pushState({},'',to); window.dispatchEvent(new PopStateEvent('popstate')); window.scrollTo({top:0,behavior:'smooth'}); };
 const keyFor = (i:CartItem) => `${i.productId}-${i.size}-${i.colour}`;
 const nigerianStates=['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara','Abuja FCT'];
+const localPaymentBank = import.meta.env.DEV && /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname)
+  ? {name:'Access Bank',accountName:'FORGED ACTIVEWEAR',accountNumber:'0123456789'}
+  : null;
 
 function App() {
   const [route,setRoute] = useState(path());
@@ -165,7 +169,8 @@ function Checkout({ctx}:{ctx:Ctx}) {
     if(data.email&&!/\S+@\S+\.\S+/.test(String(data.email)))nextErrors.email='Enter a valid email';
     setErrors(nextErrors);if(Object.keys(nextErrors).length)return;
     if(!ctx.cart.length){ctx.notify('Your cart is empty');return}
-    const number=`FORGED-${Date.now().toString(36).toUpperCase()}-${crypto.randomUUID().slice(0,8).toUpperCase()}`;
+    const savedOrders=read<Order[]>('forged-orders',[]);
+    const number=nextPreviewOrderReference([...savedOrders,...ctx.orders].map(item=>item.orderNumber));
     const order:Order={orderNumber:number,createdAt:new Date().toISOString(),customer:{fullName:String(data.fullName),email:String(data.email),phone:String(data.phone)},delivery:{address:String(data.address),city:String(data.city),state:String(data.state),instructions:String(data.instructions||'')},items:ctx.cart,subtotal:sub,deliveryFee:delivery,total:sub+delivery,paymentMethod:'Bank Transfer',paymentStatus:'Awaiting Payment',orderStatus:'Pending Payment'};
     // A browser-saved checkout is not a received order. Keep the email integration dormant
     // until checkout is backed by a real order-creation service.
@@ -203,6 +208,7 @@ function Payment({orderNumber,ctx}:{orderNumber:string;ctx:Ctx}) {
   const order=ctx.orders.find(item=>item.orderNumber===orderNumber);
   const [copied,setCopied]=useState('');
   if(!order)return <NotFound/>;
+  if(localPaymentBank)return <LocalPaymentPreview order={order} bank={localPaymentBank}/>;
   const copy=(value:string,key:string)=>navigator.clipboard.writeText(value).then(()=>{setCopied(key);setTimeout(()=>setCopied(''),1600)});
   const submit=(event:React.FormEvent<HTMLFormElement>)=>{
     event.preventDefault();
@@ -222,6 +228,31 @@ function Payment({orderNumber,ctx}:{orderNumber:string;ctx:Ctx}) {
   </div></PageWrap>;
 }
 function InfoRow({label,value,action}:{label:string;value:string;action?:React.ReactNode}){return <div className="info-row"><span>{label}</span><strong>{value}</strong>{action}</div>}
+
+function LocalPaymentPreview({order,bank}:{order:Order;bank:{name:string;accountName:string;accountNumber:string}}){
+  const [copied,setCopied]=useState<'account'|'reference'|null>(null);
+  const [copyError,setCopyError]=useState('');
+  const copy=async(value:string,key:'account'|'reference')=>{
+    try{
+      if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(value);
+      setCopied(key);setCopyError('');
+      window.setTimeout(()=>setCopied(current=>current===key?null:current),2200);
+    }catch{setCopyError('Copy was unavailable. Please select and copy the details manually.')}
+  };
+  return <PageWrap title="COMPLETE YOUR PAYMENT" over="LOCAL DESIGN PREVIEW"><div className="payment-preview">
+    <div className="payment-preview-warning" role="note"><ShieldCheck/><p><strong>TEMPORARY DETAILS — DO NOT TRANSFER MONEY.</strong><br/>This page is a local design preview. The account below is not an operational FORGED payment account, and this checkout has not been placed with FORGED.</p></div>
+    <div className="payment-preview-grid">
+      <div className="payment-preview-main">
+        <section className="payment-preview-reference" aria-labelledby="preview-reference-title"><div><p className="payment-preview-kicker" id="preview-reference-title">YOUR PREVIEW ORDER REFERENCE</p><strong>{order.orderNumber}</strong><p>In a live checkout, use this reference as your bank-transfer narration or description.</p><div className="payment-preview-reference-total"><span>TOTAL PAYABLE · PREVIEW ONLY</span><b>{formatNaira(order.total)}</b></div></div><button type="button" onClick={()=>copy(order.orderNumber,'reference')} aria-label="Copy order reference"><Copy/>{copied==='reference'?'COPIED':'COPY REFERENCE'}</button></section>
+        <section className="payment-preview-bank" aria-labelledby="preview-bank-title"><div className="payment-preview-section-heading"><p className="payment-preview-kicker">BANK TRANSFER / DESIGN PREVIEW</p><h2 id="preview-bank-title">ACCOUNT DETAILS.</h2></div><div className="payment-preview-bank-row"><span>BANK NAME</span><strong>{bank.name}</strong></div><div className="payment-preview-bank-row"><span>ACCOUNT NAME</span><strong>{bank.accountName}</strong></div><div className="payment-preview-bank-row account-number"><span>ACCOUNT NUMBER</span><strong>{bank.accountNumber}</strong><button type="button" onClick={()=>copy(bank.accountNumber,'account')} aria-label="Copy account number"><Copy/>{copied==='account'?'COPIED':'COPY NUMBER'}</button></div><p className="payment-preview-bank-note">Placeholder account for layout review only. Do not make a transfer.</p></section>
+        <section className="payment-preview-steps"><div className="payment-preview-section-heading"><p className="payment-preview-kicker">THE PROCESS</p><h2>HOW BANK TRANSFER WILL WORK.</h2></div><p>When verified business details are available and checkout opens:</p><ol><li>Open your mobile banking app or visit your bank.</li><li>Transfer the exact confirmed total to the verified FORGED account shown at that time.</li><li>Enter your order reference as the transfer narration or description.</li><li>Keep your transfer receipt until payment is confirmed.</li></ol></section>
+        <section className="payment-preview-confirmation"><h3>PAYMENT CONFIRMATION</h3><p>An order can only be marked as paid after FORGED confirms receipt of funds. A transfer screenshot alone does not confirm payment. No payment or transfer has been recorded for this preview.</p></section>
+      </div>
+      <aside className="payment-preview-summary" id="payment-order-summary"><p className="payment-preview-kicker">YOUR SAVED SELECTION</p><h2>ORDER SUMMARY.</h2><div className="payment-preview-items">{order.items.map(item=>{const product=products.find(candidate=>candidate.id===item.productId);return <div key={keyFor(item)}><span>{product?.name||item.productId}<small>{item.size} / {item.colour} · Qty {item.quantity}</small></span></div>})}</div><div className="payment-preview-totals"><div><span>Product subtotal</span><strong>{formatNaira(order.subtotal)}</strong></div><div><span>Indicative delivery</span><strong>{formatNaira(order.deliveryFee)}</strong></div><div className="payment-preview-total"><span>TOTAL PAYABLE <small>PREVIEW ONLY</small></span><strong>{formatNaira(order.total)}</strong></div></div><p>Delivery is calculated using the current illustrative checkout rate, not a confirmed business price. No extra charges have been added.</p><button className="payment-preview-secondary" onClick={()=>navigate(`/track?order=${encodeURIComponent(order.orderNumber)}`)}>VIEW SAVED DETAILS</button><button className="payment-preview-secondary" onClick={()=>navigate('/shop')}>CONTINUE BROWSING</button></aside>
+    </div><p className="payment-preview-feedback" role="status" aria-live="polite">{copyError|| (copied?`${copied==='account'?'Account number':'Order reference'} copied to clipboard.`:'')}</p>
+  </div></PageWrap>;
+}
 
 function Confirmation({orderNumber,ctx}:{orderNumber:string;ctx:Ctx}){const o=ctx.orders.find(x=>x.orderNumber===orderNumber);if(!o)return <NotFound/>;return <PageWrap title="REFERENCE SAVED" over="PAYMENT NOT VERIFIED"><div className="success"><div className="success-icon"><Check/></div><h2>KEEP THIS REFERENCE.</h2><p>Your transfer reference is stored in this browser only. It has not been sent to FORGED for review, and payment has not been verified.</p><div><InfoRow label="REFERENCE" value={o.orderNumber}/><InfoRow label="PAYMENT STATUS" value={o.paymentStatus}/><InfoRow label="SAVED STATUS" value={o.orderStatus}/><InfoRow label="ESTIMATED TOTAL" value={formatNaira(o.total)}/></div><button className="btn dark" onClick={()=>navigate(`/track?order=${encodeURIComponent(orderNumber)}`)}>VIEW SAVED DETAILS <ArrowRight/></button></div></PageWrap>}
 

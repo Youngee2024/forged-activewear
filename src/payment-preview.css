@@ -1,0 +1,75 @@
+.payment-preview{max-width:1180px;margin:0 auto}
+.payment-preview-warning{display:flex;align-items:flex-start;gap:15px;padding:19px 22px;margin-bottom:28px;background:#eeeae1;border-left:4px solid #111}
+.payment-preview-warning svg{width:22px;height:22px;flex:none;margin-top:2px}
+.payment-preview-warning p{margin:0;font-size:15px;line-height:1.6}
+.payment-preview-warning strong{font-size:13px;letter-spacing:.08em}
+.payment-preview-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,360px);gap:26px;align-items:start}
+.payment-preview-main{min-width:0}
+.payment-preview-kicker{margin:0 0 13px;font-size:12px;font-weight:800;letter-spacing:.14em;color:#666}
+.payment-preview-reference{display:flex;align-items:center;justify-content:space-between;gap:25px;padding:28px 30px;background:#101010;color:#fff}
+.payment-preview-reference>div{min-width:0}
+.payment-preview-reference .payment-preview-kicker{color:#aaa}
+.payment-preview-reference strong{display:block;font-size:clamp(23px,3vw,35px);letter-spacing:-.035em;overflow-wrap:anywhere}
+.payment-preview-reference>div>p:last-of-type{max-width:48ch;margin:12px 0 0;color:#c7c7c7;font-size:14px;line-height:1.55}
+.payment-preview-reference-total{display:none}
+.payment-preview-reference button,.payment-preview-bank-row button{display:inline-flex;align-items:center;justify-content:center;gap:9px;flex:none;min-height:44px;padding:10px 13px;border:1px solid currentColor;font-size:12px;font-weight:800;letter-spacing:.07em;white-space:nowrap}
+.payment-preview-reference button:hover{background:#fff;color:#111}
+.payment-preview-reference button svg,.payment-preview-bank-row button svg{width:16px;height:16px}
+.payment-preview-bank{margin-top:20px;background:#fff;border:1px solid #d4d2cc}
+.payment-preview-section-heading{padding:29px 30px 17px}
+.payment-preview-section-heading h2,.payment-preview-summary h2{margin:0;font:800 clamp(27px,3.2vw,39px)/1 var(--display);letter-spacing:-.015em}
+.payment-preview-bank-row{display:grid;grid-template-columns:180px minmax(0,1fr) auto;gap:15px;align-items:center;padding:19px 30px;border-top:1px solid #e2e0da}
+.payment-preview-bank-row>span{color:#666;font-size:12px;font-weight:800;letter-spacing:.1em}
+.payment-preview-bank-row strong{font-size:17px;overflow-wrap:anywhere}
+.payment-preview-bank-row.account-number strong{font-size:24px;letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.payment-preview-bank-row button{border-color:#111}
+.payment-preview-bank-row button:hover{background:#111;color:#fff}
+.payment-preview-bank-note{padding:15px 30px;margin:0;background:#f1efe9;color:#4d4942;font-size:14px;line-height:1.5}
+.payment-preview-steps{margin-top:30px;padding-bottom:21px;border-top:2px solid #111;border-bottom:1px solid #c9c7c1}
+.payment-preview-steps .payment-preview-section-heading{padding-inline:0}
+.payment-preview-steps>p,.payment-preview-steps li,.payment-preview-confirmation p{font-size:16px;line-height:1.65}
+.payment-preview-steps>p{margin:0 0 12px}
+.payment-preview-steps ol{padding-left:23px;margin:0}
+.payment-preview-steps li{padding:5px 0 5px 7px}
+.payment-preview-steps li::marker{font-weight:800}
+.payment-preview-confirmation{padding:27px 0 10px}
+.payment-preview-confirmation h3{margin:0 0 10px;font-size:14px;letter-spacing:.12em}
+.payment-preview-confirmation p{margin:0;color:#484848}
+.payment-preview-summary{position:sticky;top:122px;background:#fff;border:1px solid #d4d2cc;padding:28px}
+.payment-preview-summary h2{font-size:31px}
+.payment-preview-items{margin:24px 0;border-top:1px solid #d4d2cc}
+.payment-preview-items>div,.payment-preview-totals>div{display:flex;justify-content:space-between;gap:14px;padding:13px 0;border-bottom:1px solid #e2e0da;font-size:14px}
+.payment-preview-items span{min-width:0}
+.payment-preview-items small{display:block;margin-top:5px;color:#6a6a6a;font-size:12px;line-height:1.4}
+.payment-preview-items strong,.payment-preview-totals strong{white-space:nowrap;font-variant-numeric:tabular-nums}
+.payment-preview-totals>div{border:0;padding:6px 0}
+.payment-preview-totals .payment-preview-total{display:block;margin-top:15px;padding-top:17px;border-top:2px solid #111}
+.payment-preview-total>span{display:block;font-size:12px;font-weight:800;letter-spacing:.12em}
+.payment-preview-total small{color:#777;font-size:11px}
+.payment-preview-total strong{display:block;margin-top:8px;font-size:clamp(29px,3vw,39px);letter-spacing:-.04em}
+.payment-preview-summary>p:not(.payment-preview-kicker){margin:18px 0 24px;color:#626262;font-size:13px;line-height:1.6}
+.payment-preview-secondary{display:block;width:100%;min-height:46px;padding:11px 15px;margin-top:9px;border:1px solid #111;font-size:12px;font-weight:800;letter-spacing:.08em;text-align:center}
+.payment-preview-secondary:first-of-type{background:#111;color:#fff}
+.payment-preview-secondary:hover{background:#333;color:#fff}
+.payment-preview-feedback{min-height:20px;margin:15px 0 0;font-size:13px}
+@media(max-width:850px){
+  .payment-preview-grid{grid-template-columns:1fr}
+  .payment-preview-summary{position:static}
+  .payment-preview-reference-total{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:20px;padding-top:17px;border-top:1px solid #555}
+  .payment-preview-reference-total span{color:#bbb;font-size:11px;font-weight:800;letter-spacing:.07em}
+  .payment-preview-reference-total b{font-size:26px;white-space:nowrap}
+}
+@media(max-width:560px){
+  .payment-preview-warning{padding:15px;gap:10px}
+  .payment-preview-warning p{font-size:14px}
+  .payment-preview-reference{display:block;padding:23px 20px}
+  .payment-preview-reference button{margin-top:19px}
+  .payment-preview-reference-total{display:block}
+  .payment-preview-reference-total b{display:block;margin-top:7px}
+  .payment-preview-bank-row{grid-template-columns:1fr;gap:7px;padding:16px 20px}
+  .payment-preview-bank-row button{justify-self:start;margin-top:7px}
+  .payment-preview-section-heading{padding:24px 20px 15px}
+  .payment-preview-bank-note{padding:15px 20px}
+  .payment-preview-summary{padding:23px 20px}
+  .payment-preview-steps .payment-preview-section-heading{padding:24px 0 15px}
+}
