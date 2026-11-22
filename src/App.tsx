@@ -10,9 +10,11 @@ const path = () => `${window.location.pathname}${window.location.search}`;
 const navigate = (to:string) => { history.pushState({},'',to); window.dispatchEvent(new PopStateEvent('popstate')); window.scrollTo({top:0,behavior:'smooth'}); };
 const keyFor = (i:CartItem) => `${i.productId}-${i.size}-${i.colour}`;
 const nigerianStates=['Abia','Adamawa','Akwa Ibom','Anambra','Bauchi','Bayelsa','Benue','Borno','Cross River','Delta','Ebonyi','Edo','Ekiti','Enugu','Gombe','Imo','Jigawa','Kaduna','Kano','Katsina','Kebbi','Kogi','Kwara','Lagos','Nasarawa','Niger','Ogun','Ondo','Osun','Oyo','Plateau','Rivers','Sokoto','Taraba','Yobe','Zamfara','Abuja FCT'];
-const localPaymentBank = import.meta.env.DEV && /^(localhost|127\.0\.0\.1|\[::1\])$/i.test(window.location.hostname)
-  ? {name:'Access Bank',accountName:'FORGED ACTIVEWEAR',accountNumber:'0123456789'}
-  : null;
+const demoPaymentBank = {
+  name: 'Access Bank',
+  accountName: 'FORGED ACTIVEWEAR',
+  accountNumber: '0123456789'
+}
 
 function App() {
   const [route,setRoute] = useState(path());
@@ -208,7 +210,7 @@ function Payment({orderNumber,ctx}:{orderNumber:string;ctx:Ctx}) {
   const order=ctx.orders.find(item=>item.orderNumber===orderNumber);
   const [copied,setCopied]=useState('');
   if(!order)return <NotFound/>;
-  if(localPaymentBank)return <LocalPaymentPreview order={order} bank={localPaymentBank}/>;
+  if(demoPaymentBank)return <LocalPaymentPreview order={order} bank={demoPaymentBank}/>;
   const copy=(value:string,key:string)=>navigator.clipboard.writeText(value).then(()=>{setCopied(key);setTimeout(()=>setCopied(''),1600)});
   const submit=(event:React.FormEvent<HTMLFormElement>)=>{
     event.preventDefault();
@@ -240,8 +242,17 @@ function LocalPaymentPreview({order,bank}:{order:Order;bank:{name:string;account
       window.setTimeout(()=>setCopied(current=>current===key?null:current),2200);
     }catch{setCopyError('Copy was unavailable. Please select and copy the details manually.')}
   };
-  return <PageWrap title="COMPLETE YOUR PAYMENT" over="LOCAL DESIGN PREVIEW"><div className="payment-preview">
-    <div className="payment-preview-warning" role="note"><ShieldCheck/><p><strong>TEMPORARY DETAILS — DO NOT TRANSFER MONEY.</strong><br/>This page is a local design preview. The account below is not an operational FORGED payment account, and this checkout has not been placed with FORGED.</p></div>
+  return <PageWrap title="COMPLETE YOUR PAYMENT" over="DEMO PAYMENT PREVIEW"><div className="payment-preview">
+    <div className="payment-preview-warning" role="note">
+  <ShieldCheck/>
+  <p>
+    <strong>DEMO ONLY — DO NOT TRANSFER MONEY.</strong>
+    <br/>
+    These are temporary demonstration bank details for FORGED website review.
+    They are not verified operational payment details. Do not send money to this account.
+    This checkout has not been submitted as an order to FORGED.
+  </p>
+</div>
     <div className="payment-preview-grid">
       <div className="payment-preview-main">
         <section className="payment-preview-reference" aria-labelledby="preview-reference-title"><div><p className="payment-preview-kicker" id="preview-reference-title">YOUR PREVIEW ORDER REFERENCE</p><strong>{order.orderNumber}</strong><p>In a live checkout, use this reference as your bank-transfer narration or description.</p><div className="payment-preview-reference-total"><span>TOTAL PAYABLE · PREVIEW ONLY</span><b>{formatNaira(order.total)}</b></div></div><button type="button" onClick={()=>copy(order.orderNumber,'reference')} aria-label="Copy order reference"><Copy/>{copied==='reference'?'COPIED':'COPY REFERENCE'}</button></section>
