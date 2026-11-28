@@ -114,7 +114,7 @@ export const storeConfig = {
   freeDeliveryAt:100000,
   announcement:{enabled:true,message:'FORGED ACTIVEWEAR — BUILT FOR THE GRIND'},
   promotion:{enabled:false,message:''},
-  delivery:{summary:'Service areas and rates will be published before purchases open.'},
-  returns:{summary:'The returns policy will be published before purchases open.'},
+  delivery:{configured:false,summary:'Dispatches from Osogbo by the next business day. Estimated delivery is 1-2 days within Osun and 1-3 days outside Osun. Rates vary by destination and packed weight.'},
+  returns:{summary:'Refund or exchange requests are accepted within 3 days of delivery, subject to the published conditions.'},
   bank:{verified:false,name:'',accountName:'',accountNumber:''},
 };
